@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск приказов</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <a href="{{url_for('upload_order')}}" class="btn btn-secondary mt-2">Загрузить новый приказ</a>
+    <div class="container mt-5">
+        <h1>Поиск приказов</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label(class="form-label") }} 
+                {{ form.name(class="form-control") }}<br>
+            </div>
+            <div class="form-group">
+                <label for="sort">Сортировка по:</label>
+                <select name="sort" class="form-control" id="sort">
+                    <option value="date_desc">Дате (по убыванию)</option>
+                    <option value="date_asc">Дате (по возрастанию)</option>
+                    <option value="number_asc">Номеру (по возрастанию)</option>
+                    <option value="number_desc">Номеру (по убыванию)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Поиск</button>
+            <a href="{{ url_for('search_order') }}" class="btn btn-secondary mt-2">Сбросить</a>
+        </form>
+
+        <h2>Результаты поиска:</h2>
+        <ul class="list-group">
+            {% if results %}
+                {% for order in results %}
+                    <li class="list-group-item">
+                        <strong>Номер приказа:</strong> 
+                        <a href="{{ url_for('view_order', order_id=order.id) }}">{{ order.number }}</a> - 
+                        <strong>Файл:</strong> {{ order.filenames }}  
+                        <br>
+                        <strong>Сотрудники:</strong>
+                        {% if order.employees %}
+                            {% set employees = order.employees.split(',') %}
+                            {% if employees|length > 0 and employees[0] != '' %}
+                                {% for employee in employees %}
+                                    <a href="{{ url_for('employee_orders', employee_name=employee.strip()) }}" class="btn btn-link">{{ employee.strip() }}</a>
+                                {% endfor %}
+                            {% else %}
+                                <span>Нет сотрудников</span>
+                            {% endif %}
+                        {% else %}
+                            <span>Нет сотрудников</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">Нет найденных приказов.</li>
+            {% endif %}
+        </ul>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mt-3">
+                    <ul class="list-group">
+                    {% for category, message in messages %}
+                        <li class="list-group-item list-group-item-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

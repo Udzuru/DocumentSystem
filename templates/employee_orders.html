@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Приказы для {{ employee_name }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Приказы для {{ employee_name }}</h1>
+        <ul class="list-group">
+            {% for order in orders %}
+                <li class="list-group-item">
+                    <p>Номер приказа:<a href="{{ url_for('view_order', order_id=order.id) }}"> {{ order.number }}</a></p>
+                </li>
+            {% else %}
+                <li class="list-group-item">Нет приказов для этого сотрудника.</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('search_order') }}" class="btn btn-primary mt-3">Вернуться к поиску</a>
+    </div>
+</body>
+</html>

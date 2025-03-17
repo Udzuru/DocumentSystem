@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Приказ {{ order.number }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.css">
+    <style>
+        .pdf-viewer {
+            width: 50%;
+            height: 600px;
+            border: 1px solid black;
+            margin-bottom: 20px; /* Добавляем отступ между PDF */
+        }
+        .button-group {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Приказ {{ order.number }}</h1>
+        {% for i in order.filenames.split(',') %}
+        <p><strong>Файл:</strong> <a href="{{ url_for('static', filename='uploads/' + i) }}">{{ i }}</a></p>
+        <canvas class="pdf-viewer" id="pdf-viewer-{{ loop.index }}"></canvas>
+        
+        <div class="button-group">
+            <button id="prev-page-{{ loop.index }}" class="btn btn-secondary">Предыдущая страница</button>
+            <span id="page-num-{{ loop.index }}">Страница 1 из 0</span>
+            <button id="next-page-{{ loop.index }}" class="btn btn-secondary">Следующая страница</button>
+        </div>
+        
+        <div class="button-group">
+            <button id="zoom-out-{{ loop.index }}" class="btn btn-secondary">Уменьшить</button>
+            <button id="zoom-in-{{ loop.index }}" class="btn btn-secondary">Увеличить</button>
+        </div>
+
+        <script type="module">
+            import * as pdfjsLib from "{{ url_for('static', filename='pdfjs/pdf.js') }}";
+
+            // Укажите путь к worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ url_for('static', filename='pdfjs/pdf.worker.js') }}";
+
+            // Укажите путь к вашему PDF-файлу
+            const url = "{{ url_for('static', filename='uploads/' + i) }}";
+
+            let pdfDoc = null;
+            let pageNum = 1;
+            let scale = 1.5;
+
+            const loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(pdf => {
+                pdfDoc = pdf;
+                document.getElementById('page-num-{{ loop.index }}').textContent = `Страница ${pageNum} из ${pdf.numPages}`;
+                renderPage(pageNum);
+            }, reason => {
+                console.error(reason);
+            });
+
+            function renderPage(num) {
+                pdfDoc.getPage(num).then(page => {
+                    const viewport = page.getViewport({ scale: scale });
+                    const canvas = document.getElementById('pdf-viewer-{{ loop.index }}');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext).promise.then(() => {
+                        console.log('Page rendered');
+                    });
+                });
+            }
+
+            document.getElementById('prev-page-{{ loop.index }}').addEventListener('click', () => {
+                if (pageNum <= 1) return;
+                pageNum--;
+                renderPage(pageNum);
+                document.getElementById('page-num-{{ loop.index }}').textContent = `Страница ${pageNum} из ${pdfDoc.numPages}`;
+            });
+
+            document.getElementById('next-page-{{ loop.index }}').addEventListener('click', () => {
+                if (pageNum >= pdfDoc.numPages) return;
+                pageNum++;
+                renderPage(pageNum);
+                document.getElementById('page-num-{{ loop.index }}').textContent = `Страница ${pageNum} из ${pdfDoc.numPages}`;
+            });
+
+            document.getElementById('zoom-out-{{ loop.index }}').addEventListener('click', () => {
+                if (scale > 0.25) {
+                    scale -= 0.25;
+                    renderPage(pageNum);
+                }
+            });
+
+            document.getElementById('zoom-in-{{ loop.index }}').addEventListener('click', () => {
+                if (scale < 3) {
+                    scale += 0.25;
+                    renderPage(pageNum);
+                }
+            });
+        </script>
+        {% endfor %}
+        <p><strong>Сотрудники:</strong> {{ order.employees }}</p>
+        <a href="{{ url_for('search_order') }}" class="btn btn-primary mt-3">Вернуться к поиску</a>
+    </div>
+</body>
+</html>

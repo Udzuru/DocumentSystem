@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Документооборот приказов</h1>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('upload_order') }}" class="btn btn-primary btn-lg">Загрузить приказ</a>
+            <a href="{{ url_for('manage_employees') }}" class="btn btn-secondary btn-lg">Редактировать список сотрудников</a>
+            <a href="{{ url_for('master') }}" class="btn btn-secondary btn-lg">Проверка соотрудников по приказам</a>
+            <a href="{{ url_for('search_order') }}" class="btn btn-success btn-lg">Поиск по приказам</a>
+        </div>
+    </div>
+</body>
+</html>

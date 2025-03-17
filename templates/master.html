@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Настройка приказов</title>
+</head>
+<body>
+    <p>Новые приказы</p>
+    {% if results_new %}
+    {% for order in results_new %}
+        <li class="list-group-item">
+            <strong>Номер приказа:</strong> 
+            <a href="{{ url_for('admin_order', order_id=order.id) }}">{{ order.number }}</a> - 
+            <strong>Файл:</strong> {{ order.filenames }}  <!-- Изменено на filenames -->
+            <br>
+            <strong>Сотрудники:</strong>
+            {% if order.employees %}
+                {% set employees = order.employees.split(',') %}
+                {% if employees|length > 0 and employees[0] != '' %}
+                    {% for employee in employees %}
+                        <a href="{{ url_for('employee_orders', employee_name=employee.strip()) }}" class="btn btn-link">{{ employee.strip() }}</a>
+                    {% endfor %}
+                {% else %}
+                    <span>Нет сотрудников</span>
+                {% endif %}
+            {% else %}
+                <span>Нет сотрудников</span>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% else %}
+    <li class="list-group-item">Нет найденных приказов.</li>
+{% endif %}
+</ul>
+    <p>Отмечанные приказы</p>
+    {% if results %}
+    {% for order in results %}
+        <li class="list-group-item">
+            <strong>Номер приказа:</strong> 
+            <a href="{{ url_for('admin_order', order_id=order.id) }}">{{ order.number }}</a> - 
+            <strong>Файл:</strong> {{ order.filenames }}  <!-- Изменено на filenames -->
+            <br>
+            <strong>Сотрудники:</strong>
+            {% if order.employees %}
+                {% set employees = order.employees.split(',') %}
+                {% if employees|length > 0 and employees[0] != '' %}
+                    {% for employee in employees %}
+                        <a href="{{ url_for('employee_orders', employee_name=employee.strip()) }}" class="btn btn-link">{{ employee.strip() }}</a>
+                    {% endfor %}
+                {% else %}
+                    <span>Нет сотрудников</span>
+                {% endif %}
+            {% else %}
+                <span>Нет сотрудников</span>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% else %}
+    <li class="list-group-item">Нет найденных приказов.</li>
+{% endif %}
+</ul>
+</body>
+</html>

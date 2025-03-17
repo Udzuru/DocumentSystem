@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка приказов</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        function addFileInput() {
+            const fileInputsContainer = document.getElementById('file-inputs-container');
+            const newFileInput = document.createElement('div');
+            newFileInput.className = 'form-group';
+            newFileInput.innerHTML = `
+                <label>Файл</label>
+                <input type="file" name="files" class="form-control" multiple>
+                <button type="button" class="btn btn-danger mt-2" onclick="removeFileInput(this)">Удалить файл</button>
+            `;
+            fileInputsContainer.appendChild(newFileInput);
+        }
+
+        function removeFileInput(button) {
+            const fileInputDiv = button.parentElement;
+            fileInputDiv.remove();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <a href="{{url_for('search_order')}}" class="btn btn-secondary mt-2">Назад</a>
+        <h1>Загрузка приказов</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.number.label }} {{ form.number(class="form-control") }}<br>
+            </div>
+            <div class="form-group">
+                <label>Дата</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div id="file-inputs-container">
+                <div class="form-group">
+                    <label>Файл</label>
+                    <input type="file" name="files" class="form-control" multiple>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addFileInput()">Добавить файл</button><br><br>
+            {{ form.submit(class="btn btn-success") }}
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+</body>
+</html>
